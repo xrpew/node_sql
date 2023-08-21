@@ -24,7 +24,7 @@ app.get('/usuarios', async (req, res) => {
         const result = await pool.query('SELECT * FROM usuarios');
         res.json(result.rows);
     } catch (err) {
-        console.error('Error en la consulta:', err.stack);
+        console.log('Error en la consulta:', err.stack);
         res.status(500).send('Error interno del servidor.');
     }
 });
