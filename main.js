@@ -1,35 +1,56 @@
 const { Pool } = require('pg');
 const express = require('express');
-const PORT = 8080;
+require('dotenv').config();
 
+const PORT = process.env.PORT;
+const HOST_DB = process.env.HOST
+const password = process.env.PASSWORD_DB
+
+console.log(PORT, HOST_DB, password)
 app = express();
 
 const pool = new Pool({
-    host: 'ep-dry-lab-52582492-pooler.us-east-1.postgres.vercel-storage.com',
+    host: `${HOST_DB}`,
     port: 5432,
     database: 'verceldb',
     user: 'default',
-    password: '6oFt8bZqlmGx',
+    password: `${password}`,
     ssl: {
         rejectUnauthorized: false
     }
 });
 
-app.get('/', (req, res) => {
-    res.status(200).send('Welcome to analytics database.');
-})
+const getToken = (req, res, next) => {
 
-app.get('/usuarios', async (req, res) => {
+    const authToken = req.header('x-token');
+    if (!authToken) {
+        return res.status(401).json({ error: 'Token missing' });
+      }
+    
+      const validToken = process.env.VALID_TOKEN; // Token válido desde la variable de entorno
+      if (authToken !== validToken) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    
+    
+    next();
+}
+
+app.get('/', getToken, (req, res) => {
+    res.json({ 'message': 'welcome to database analytcs' });
+  });
+
+app.get('/usuarios', getToken, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM usuarios');
         res.json(result.rows);
     } catch (err) {
-        console.log('Error en la consulta:', err.stack);
+        console.error('Error en la consulta:', err.stack);
         res.status(500).send('Error interno del servidor.');
     }
 });
 
-app.get('/asistencias', async (req, res)=>{
+app.get('/asistencias', getToken, async (req, res)=>{
     try{
         const { userid } = req.query;
         if (!userid) {
@@ -58,5 +79,5 @@ app.get('/insertday', (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
