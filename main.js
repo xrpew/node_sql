@@ -36,7 +36,7 @@ const getToken = (req, res, next) => {
     next();
 }
 
-app.get('/', getToken, (req, res) => {
+app.get('/', (req, res) => {
     res.json({ 'message': 'welcome to database analytcs' });
   });
 
