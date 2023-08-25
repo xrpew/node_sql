@@ -1,9 +1,10 @@
 const { Router } = require('express')
 const { getRoot,
-    getUsers,
+    getAllUsers,
     getAsistencias,
     insertDay,
-    getUserByRut } = require('../controllers/index.controller')
+    getUserByRut, 
+    addUserinDB } = require('../controllers/index.controller')
 const router = Router()
 require('dotenv').config();
 
@@ -23,12 +24,14 @@ const getToken = (req, res, next) => {
 }
 router.get('/', getRoot);
 
-router.get('/usuarios', getToken, getUsers);
+router.get('/usuarios', getToken, getAllUsers);
 
-router.get('/asistencias', getToken, getAsistencias)
+router.get('/usuarios/:documento', getToken, getUserByRut)
 
 router.get('/insertday', getToken, insertDay)
 
-router.get('/finduser/:documento', getToken, getUserByRut)
+router.get('/asistencia/:documento', getToken, getAsistencias)
+
+router.post('/nuevo-usuario', addUserinDB)
 
 module.exports = router
